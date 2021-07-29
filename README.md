@@ -62,6 +62,7 @@ Check the discord example template to see the fields in action.
 | Field | Meaning |
 |--|--|
 | {app} | Scanned Application Name |
+| {scan_finished_time} | Time the Scan Execution Finished |
 | {report_url} | URL of the downloaded report |
 | {NIssuesFound} | Number of issues found during the scan |
 | {NHighIssues} | Number of high severity issues found during the scan |

@@ -26,7 +26,7 @@
 				},
 				{
 					"name": "Summary:",
-					"value": "Scan: {scanName}\r\nScan Duration: {duration_str}\r\nCreated By: {createdBy}"
+					"value": "Scan: {scanName}\r\nScan Finished: {scan_finished_time}\r\nScan Duration: {duration_str}\r\nCreated By: {createdBy}"
 				}
 			],
 			"timestamp": "{time_stamp}",

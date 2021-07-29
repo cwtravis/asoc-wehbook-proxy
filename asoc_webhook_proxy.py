@@ -41,13 +41,14 @@ asoc = None
 scriptDir = os.getcwd()
 config = None
 safePattern = None
+reportBaseUrl = None
 
 """
 Initialize Globals
 Validate Config
 """
 def init():
-    global asoc, config, safePattern, level
+    global asoc, config, safePattern, level, reportBaseUrl
     
     logger.info("Initializing Web Hook Proxy")
 
@@ -88,13 +89,14 @@ def init():
         sys.exit(1)
     
     logger.info("Checking ASoC for Webhooks")
+    reportBaseUrl = config["hostname"]+":"+str(config["port"])
     asocWebHooks = asoc.getWebhooks()
     if(asocWebHooks is not None):
         n = len(asocWebHooks)
         logger.info(f"{n} webhooks returned")
         for wh in config["webhooks"]:
             wh_name = wh["name"]
-            calcConfigWHUrl = "http://"+config["hostname"]+":"+str(config["port"])+"/asoc/"+wh_name
+            calcConfigWHUrl = f"{reportBaseUrl}/asoc/{wh_name}"
             found = False
             for asocWh in asocWebHooks:
                 calcAsocUrl = asocWh["Uri"].replace("/{SubjectId}", "")
@@ -160,6 +162,9 @@ def scanDataToWebhookData(template, data, reportUrl=None):
     now = datetime.now()
     time_stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     app = data["scan"]["AppName"]
+    scanFinishedRaw = data["scan_execution"]["ScanEndTime"]
+    scanFinishedDt = datetime.strptime(scanFinishedRaw,"%Y-%m-%dT%H:%M:%S.%fZ")
+    scanFinished = scanFinishedDt.strftime("%Y-%m-%d %H:%M:%S")
     duration_secs = data["scan_execution"]["ExecutionDurationSec"]
     duration_str = time.strftime('%Hh %Mm %Ss', time.gmtime(duration_secs))
     createdBy = data["scan_execution"]["CreatedBy"]["FirstName"]+" "
@@ -182,6 +187,7 @@ def scanDataToWebhookData(template, data, reportUrl=None):
         return None
         
     templateStr = templateStr.replace("{app}", app)
+    templateStr = templateStr.replace("{scan_finished_time}", scanFinished)
     templateStr = templateStr.replace("{time_stamp}", time_stamp)
     templateStr = templateStr.replace("{duration_str}", duration_str)
     templateStr = templateStr.replace("{createdBy}", createdBy)
@@ -233,7 +239,7 @@ def processWebhook(webhook, execId, baseUrl):
     
     #Download the Report
     if(saveReport(execId, reportConfig, reportPath)):
-        reportUrl = f"{baseUrl}reports/{execId}.{ext}"
+        reportUrl = f"{baseUrl}/reports/{execId}.{ext}"
         logger.info(f"[{webhookName}] Calculated Report URL: {reportUrl}")
     else:
         reportUrl = None
@@ -258,7 +264,7 @@ app = Flask(__name__)
 #Catch webhook requests from ASoC
 @app.route('/asoc/<webhook>/<execId>', methods=['GET'])
 def respond(webhook, execId):
-    global safePattern, config
+    global safePattern, config, reportBaseUrl
     
     #Validate the request parameters
     validated = re.sub(safePattern, '', webhook)
@@ -288,7 +294,7 @@ def respond(webhook, execId):
         return Response(status=400)
         
     #Move the execution to a thread and respond immediately with 202 (Request Accepted)
-    Thread(target=processWebhook, args=(webhookObj, execId, request.url_root)).start()
+    Thread(target=processWebhook, args=(webhookObj, execId, reportBaseUrl)).start()
     return Response(status=202)
 
 #Serve reports from the report directory
