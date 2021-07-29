@@ -101,7 +101,7 @@ def init():
                 if(calcConfigWHUrl == calcAsocUrl):
                     found = True
             if(found):
-                logger.info(f"Matched webhook [wh_name] in ASoC")
+                logger.info(f"Matched webhook [{wh_name}] in ASoC")
             else:
                 logger.info(f"Webhook [{wh_name}] not found in ASoC.")
                 logger.info(f"Attempting to create webhook in ASoC")
