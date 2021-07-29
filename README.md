@@ -72,7 +72,7 @@ Check the discord example template to see the fields in action.
 | {createdBy} | Name and email of user that created the scan |
 | {time_stamp} | Timestamp of when the webhook was received |
 
-Discord Example
+##Discord Example
 To setup your Discord server to receive webhooks, right click your server and select Server Settings > Integrations > View Webhooks > New Webhook. Give your webhook a name to post under, select an channel for it to post to, and optionally select an avatar image. 
 
 ![Discord Example 1](http://chillaspect.com/images/asoc_whp2.png)
