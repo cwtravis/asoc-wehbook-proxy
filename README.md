@@ -28,8 +28,8 @@ The FLASK_ENV can be development or production. I use development while testing 
 ### Windows
 
 ```
-git clone {repisitory_link}
-cd asoc_wehbook_proxy
+git clone https://github.com/cwtravis/asoc-wehbook-proxy.git
+cd asoc-wehbook-proxy
 set FLASK_APP=asoc_webhook_proxy
 set FLASK_ENV=development
 py -m flask run --host=0.0.0.0 --port=5000
@@ -37,8 +37,8 @@ py -m flask run --host=0.0.0.0 --port=5000
 
 ### Linux
 ```
-git clone {repisitory_link}
-cd asoc_wehbook_proxy
+git clone https://github.com/cwtravis/asoc-wehbook-proxy.git
+cd asoc-wehbook-proxy
 export FLASK_APP=asoc_webhook_proxy
 export FLASK_ENV=development
 flask run --host=0.0.0.0 --port=5000
@@ -76,6 +76,8 @@ Discord Example
 To setup your Discord server to receive webhooks, right click your server and select Server Settings > Integrations > View Webhooks > New Webhook. Give your webhook a name to post under, select an channel for it to post to, and optionally select an avatar image. 
 
 ![Discord Example 1](http://chillaspect.com/images/asoc_whp2.png)
+
+First rename or copy config_example.json to config.json. ASoC Webhook Proxy will look for the config.json file adjacent to it in the folder.
 
 Click "Copy Webhook URL" to copy the URL to your clipboard and paste into your config file in "url" under the "discord" webhook. Also update the following fields in the config file:
 1. Add ASoC API Key

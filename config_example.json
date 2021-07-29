@@ -1,4 +1,7 @@
 {
+    "hostname": "example-domain.com",
+    "port": "5000",
+    "log_level": "INFO",
 	"asoc_api_key": {
 		"KeyId": "<KEY_ID>",
 		"KeySecret": "<KEY_SECRET>"
@@ -6,7 +9,8 @@
 	"webhooks":[
 		{
 			"name": "discord",
-			"url": "<WEBHOOK_URL>",
+			"url": "<DISCORD_WEBHOOK_URL>",
+            "PresenceId": "<PRESENCE_ID>",
 			"report_config": {
 				"Configuration": {
 					"Summary": true,
