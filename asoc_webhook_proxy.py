@@ -10,6 +10,18 @@ import json
 import requests
 import logging
 
+#Create the log directory if it doesnt exit
+if(not os.path.isdir("log")):
+    #make the dir if it doesnt exist
+    try:
+        os.mkdir("log")
+        if(not os.path.isdir("log")):
+            print("Cannot make log directory! Exiting")
+            sys.exit(1)
+    except FileExistsError:
+        print("Cannot make log directory! Exiting")
+        sys.exit(1)
+
 level = logging.INFO
 
 #Setup Logging first
@@ -38,7 +50,7 @@ def init():
     global asoc, config, safePattern, level
     
     logger.info("Initializing Web Hook Proxy")
-    
+
     #Read the Config File config.json
     if(not os.path.isfile("config.json")):
         logger.error("Config (config.json) file doesn't exist! Exiting")
