@@ -1,0 +1,39 @@
+{
+"embeds":[
+		{   
+			"color": 10092339,
+			"title": "{app} Scan Completed",
+			"url": "{report_url}",
+			"fields": [
+				{
+					"name": ":radio_button: Total Issues: {NIssuesFound}",
+					"value": "\u200B"
+				},
+				{
+					"name": ":red_circle: High: {NHighIssues}",
+					"value": "\u200B",
+					"inline": true   
+				},
+				{
+					"name": ":orange_circle: Med: {NMediumIssues}",
+					"value": "\u200B",
+					"inline": true   
+				},
+				{
+					"name": ":blue_circle: Low: {NLowIssues}",
+					"value": "\u200B",
+					"inline": true   
+				},
+				{
+					"name": "Summary:",
+					"value": "Scan: {scanName}\r\nScan Duration: {duration_str}\r\nCreated By: {createdBy}"
+				}
+			],
+			"timestamp": "{time_stamp}",
+			"footer": {
+				"icon_url": "https://cdn.discordapp.com/attachments/862081452815941654/869672569446490142/6a00d835130c5153ef016766a511e5970b-220si.png",
+				"text": "HCL AppScan on Cloud"
+			}
+		}
+	]
+}

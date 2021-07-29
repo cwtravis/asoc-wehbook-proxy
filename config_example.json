@@ -1,0 +1,24 @@
+{
+	"asoc_api_key": {
+		"KeyId": "<KEY_ID>",
+		"KeySecret": "<KEY_SECRET>"
+	},
+	"webhooks":[
+		{
+			"name": "discord",
+			"url": "<WEBHOOK_URL>",
+			"report_config": {
+				"Configuration": {
+					"Summary": true,
+					"Overview": true,
+					"TableOfContent": true,
+					"Advisories": true,
+					"FixRecommendation": true,
+					"MinimizeDetails": true,
+					"ReportFileType": "Html",
+					"Title": "Security Report"
+				}
+			}
+		}
+	]
+}

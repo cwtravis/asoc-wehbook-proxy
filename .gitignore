@@ -1,0 +1,6 @@
+/config.json
+reports/*
+log/*
+**/test
+__pycache__
+/test.py
