@@ -42,7 +42,22 @@ class ASoC:
         }
         resp = requests.get("https://cloud.appscan.com/api/V2/Account/TenantInfo", headers=headers)
         return resp.status_code == 200
+    
+    def getApplication(self, id):
+        headers = {
+            "Accept": "application/json",
+            "Authorization": "Bearer "+self.token
+        }
         
+        resp = requests.get("https://cloud.appscan.com/api/V2/Apps/"+id, headers=headers)
+        
+        if(resp.status_code == 200):
+            return resp.json()
+        else:
+            logger.debug(f"ASoC App Summary Error Response")
+            self.logResponse(resp)
+            return None
+            
     def scanSummary(self, id, is_execution=False):
         if(is_execution):
             asoc_url = "https://cloud.appscan.com/api/v2/Scans/Execution/"
@@ -63,11 +78,18 @@ class ASoC:
             self.logResponse(resp)
             return None
         
-    def startScanReport(self, id, reportConfig, is_execution=False):
-        if(is_execution):
+    def startReport(self, id, reportConfig, type="ScanExecutionCompleted"):
+    
+        if(type == "ScanExecutionCompleted"):
             url = "https://cloud.appscan.com/api/v2/Reports/Security/ScanExecution/"+id
-        else:
+        elif(type == "scan"):
             url = "https://cloud.appscan.com/api/v2/Reports/Security/Scan/"+id
+        elif(type == "ApplicationUpdated"):
+            url = "https://cloud.appscan.com/api/v2/Reports/Security/Application/"+id
+        else:
+            logger.error(f"Unknown Report Scope [{type}]")
+            return None
+            
         headers = {
             "Accept": "application/json",
             "Authorization": "Bearer "+self.token
@@ -76,7 +98,7 @@ class ASoC:
         if(resp.status_code == 200):
             return resp.json()["Id"]
         else:
-            logger.debug(f"ASoC startScanReport")
+            logger.debug(f"ASoC startReport Error Response")
             self.logResponse(resp)
             return None
         

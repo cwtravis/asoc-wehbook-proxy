@@ -1,6 +1,6 @@
 from flask import Flask, request, Response, send_from_directory
 from asoc import ASoC
-from datetime import datetime
+from webhook_handler import WebhookHandler
 from threading import Thread
 import re
 import sys
@@ -42,13 +42,14 @@ scriptDir = os.getcwd()
 config = None
 safePattern = None
 reportBaseUrl = None
+webhookHandler = None
 
 """
 Initialize Globals
 Validate Config
 """
 def init():
-    global asoc, config, safePattern, level, reportBaseUrl
+    global asoc, config, safePattern, level, reportBaseUrl, webhookHandler
     
     logger.info("Initializing Web Hook Proxy")
 
@@ -107,11 +108,14 @@ def init():
             else:
                 logger.info(f"Webhook [{wh_name}] not found in ASoC.")
                 logger.info(f"Attempting to create webhook in ASoC")
-                if(asoc.createWebhook(wh["PresenceId"],calcConfigWHUrl+"/{SubjectId}"),True):
+                if(asoc.createWebhook(wh["PresenceId"],calcConfigWHUrl+"/{SubjectId}"),True,None,wh["trigger"]):
                     logger.info(f"Successfully created ASoC Webhook [{wh_name}]")
                 else:
                     logger.warning("Could not create ASoC Webhook... bad permissions?")
     safePattern = re.compile('[^a-zA-Z0-9\-_]')
+    
+    webhookHandler = WebhookHandler(asoc, config)
+    logger.info("Created Webhook Handler Obj")
     
     logger.info("Initialization OK")
     
@@ -209,13 +213,7 @@ def scanDataToWebhookData(template, data, reportUrl=None):
         logger.error(e)
         return None
     return templateJson
-    
-"""
-Function to make the post request to the webhook
-"""
-def postWebhook(webhookUrl, data):
-    resp = requests.post(webhookUrl, json=data)
-    return resp.status_code
+   
 
 def processWebhook(webhook, execId, baseUrl):
     global scriptDir, config
@@ -264,7 +262,9 @@ app = Flask(__name__)
 #Catch webhook requests from ASoC
 @app.route('/asoc/<webhook>/<execId>', methods=['GET'])
 def respond(webhook, execId):
-    global safePattern, config, reportBaseUrl
+    global safePattern, config, reportBaseUrl, webhookHandler
+    
+    logger.info(f"Incoming Webook [{webhook}]")
     
     #Validate the request parameters
     validated = re.sub(safePattern, '', webhook)
@@ -277,29 +277,60 @@ def respond(webhook, execId):
         logger.error("Invalid Chars in Scan Exec ID name. Valid = [a-Z0-9\-_]")
         return Response(status=400)
     
-    
-    #Ensure the webhook template exists
-    if(not os.path.isfile(f"templates/{webhook}")):
-        logger.error(f"Template {webhook} does not exist")
-        return Response(status=400)
-    
-    #Map the webhook to a URL
+    #Map the incoming webhook to a WebhookObj in the config
     webhookObj = None
     for wh in config["webhooks"]:
         if(wh["name"] == webhook):
             webhookObj = wh
             break
+            
     if(not webhookObj):
         logger.error(f"Cannot find webhook [{webhook}] in config file")
         return Response(status=400)
+    
+    logger.info(f"Matched webhook [{webhook}] from request to a configured WebHookObj")
+    
+    webhookType = None
+    if(wh["type"]):
+        webhookType = wh["type"]
+    
+    if(webhookType is None):
+        logger.warning("No webhook type detected, assuming 'json_post'")
+        webhookType = "json_post"
+    
+    logger.info(f"Webhook [{webhook}] has type [{webhookType}]")
+    if(webhookType == "json_post"):
+        #Ensure the webhook template exists
+        template = wh["template"]
+        if(not os.path.isfile(f"templates/{template}")):
+            logger.error(f"Template {webhook} does not exist")
+            return Response(status=400)
+            
         
+        logger.info(f"Verified the template exists for webhook [{webhook}]")
+        logger.info(f"Sending [{webhook}] to handler")
+        Thread(target=webhookHandler.handle, args=(webhook, execId)).start()
+        return Response(status=202)
+    elif(webhookType == "custom"):
+        logger.info(f"Sending [{webhook}] to handler")
+        Thread(target=webhookHandler.handleCustom, args=(webhook, execId)).start()
+        return Response(status=202)
+    else:
+        logger.error("Invalid webhook type, expected json_post or custom")
+        logger.info(f"Responding with 400")
+        return Response(status=400)
+        
+    
+    
+    
+    
     #Move the execution to a thread and respond immediately with 202 (Request Accepted)
-    Thread(target=processWebhook, args=(webhookObj, execId, reportBaseUrl)).start()
+    Thread(target=webhookHandler.handle, args=(webhook, execId)).start()
     return Response(status=202)
 
 #Serve reports from the report directory
 @app.route('/reports/<path:path>')
-def send_js(path):
+def sendreport(path):
     return send_from_directory('reports', path)
     
 init()
