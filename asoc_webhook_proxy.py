@@ -319,14 +319,6 @@ def respond(webhook, execId):
         logger.error("Invalid webhook type, expected json_post or custom")
         logger.info(f"Responding with 400")
         return Response(status=400)
-        
-    
-    
-    
-    
-    #Move the execution to a thread and respond immediately with 202 (Request Accepted)
-    Thread(target=webhookHandler.handle, args=(webhook, execId)).start()
-    return Response(status=202)
 
 #Serve reports from the report directory
 @app.route('/reports/<path:path>')
