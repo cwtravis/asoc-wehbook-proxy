@@ -173,7 +173,7 @@ class WebhookHandler:
             logger.info("Downloading Report")
             ext = webhookObj["report_config"]["Configuration"]["ReportFileType"].lower()
             reportUrl = self.config["hostname"]+":"+str(self.config["port"])+"/reports/"+subjectId+"."+ext
-            path = "reports/"+webhookName+"."+ext
+            path = "reports/"+subjectId+"."+ext
             if(not self.saveReport(reportTargetId, webhookObj["report_config"], path, trigger)):
                 reportUrl = None
         
@@ -190,7 +190,6 @@ class WebhookHandler:
             logger.info("Submitting Webhook Json Post")
             status = self.postWebhook(webhookObj["url"], templateJson)
             logger.info(f"Submitted Json to Webhook - Response Code {status}")
-            print(templateJson)
 
         
         
