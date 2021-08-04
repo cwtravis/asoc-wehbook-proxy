@@ -105,6 +105,7 @@ The ASoC Webhook Proxy can listen for and process incoming third-party webhooks.
 In this case you can register an incoming webhook with your third-party tool at your server e.g. http://mysite.com/thirdparty. Then create a Python script that implements your custom handler logic in the handlers directory. ASoC webhook proxy will catch the webhook call, capture all the included parameters/json and forward them to a function in your script "handle". In the above configuration, the `handle()` function in `handlers/helloworld.py` script will be called.  The helloworld example just prints a hello world message.
 
 ![Hello World Example](http://chillaspect.com/images/awp3.png)
+
 Check out the helloworld.py example.
 
 ## Other Info
