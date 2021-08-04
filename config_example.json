@@ -1,28 +1,79 @@
 {
-    "hostname": "example-domain.com",
+    "hostname": "http://mysite.com",
     "port": "5000",
     "log_level": "INFO",
 	"asoc_api_key": {
-		"KeyId": "<KEY_ID>",
-		"KeySecret": "<KEY_SECRET>"
+		"KeyId": "<KeyId>",
+		"KeySecret": "<KeySecret>"
 	},
-	"webhooks":[
-		{
-			"name": "discord",
-			"url": "<DISCORD_WEBHOOK_URL>",
-            "PresenceId": "<PRESENCE_ID>",
-			"report_config": {
-				"Configuration": {
-					"Summary": true,
-					"Overview": true,
-					"TableOfContent": true,
-					"Advisories": true,
-					"FixRecommendation": true,
-					"MinimizeDetails": true,
-					"ReportFileType": "Html",
-					"Title": "Security Report"
+	"webhooks": {
+		"asoc":[
+			{
+				"name": "discord",
+				"template": "discord",
+				"type": "json_post",
+				"url": "<webhook_url>",
+				"PresenceId": "<PresenceId>",
+				"trigger": "ScanExecutionCompleted",
+				"report_config": {
+					"Configuration": {
+						"Summary": true,
+						"Overview": true,
+						"TableOfContent": true,
+						"Advisories": true,
+						"FixRecommendation": true,
+						"MinimizeDetails": true,
+						"ReportFileType": "Html",
+						"Title": "Security Report"
+					}
+				}
+			},
+			{
+				"name": "teams",
+				"template": "teams",
+				"type": "json_post",
+				"url": "<webhook_url>",
+				"PresenceId": "<PresenceId>",
+				"trigger": "ScanExecutionCompleted",
+				"report_config": {
+					"Configuration": {
+						"Summary": true,
+						"Overview": true,
+						"TableOfContent": true,
+						"Advisories": true,
+						"FixRecommendation": true,
+						"MinimizeDetails": true,
+						"ReportFileType": "Html",
+						"Title": "Security Report"
+					}
+				}
+			},
+			{
+				"name": "slack",
+				"template": "slack",
+				"type": "json_post",
+				"url": "<webhook_url>",
+				"PresenceId": "<PresenceId>",
+				"trigger": "ScanExecutionCompleted",
+				"report_config": {
+					"Configuration": {
+						"Summary": true,
+						"Overview": true,
+						"TableOfContent": true,
+						"Advisories": true,
+						"FixRecommendation": true,
+						"MinimizeDetails": true,
+						"ReportFileType": "Html",
+						"Title": "Security Report"
+					}
 				}
 			}
-		}
-	]
+		],
+		"custom": [
+			{
+				"name": "thirdparty",
+				"handler": "helloworld"
+			}
+		]
+	}	
 }

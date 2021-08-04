@@ -3,6 +3,7 @@ import requests
 import time
 import logging
 import json
+import importlib
 
 logger = logging.getLogger('asco_webhook_proxy')
 
@@ -118,26 +119,25 @@ class WebhookHandler:
         resp = requests.post(webhookUrl, json=data)
         return resp.status_code
     
-    def handleCustom(self, webhookName, subjectId):
-        logger.info("Handling Custom WebHook Response")
-        pass
+    def handleCustom(self, webhookObj, data):
+        moduleName = webhookObj["handler"]
+        try:
+            logger.info(f"Loading custom handler for [{moduleName}]")
+            handler = importlib.import_module(f"handlers.{moduleName}")
+            logger.info(f"Custom handler for [{moduleName}] Loaded")
+            logger.info(f"Calling handle function in {moduleName}")
+            handler.handle(webhookObj, data)
+        except ModuleNotFoundError as e:
+            logger.error("Error importing custom handler code {moduleName}")
+            logger.error(e)
         
-    def handle(self, webhookName, subjectId, type="json_post"):
+    def handle(self, webhookObj, subjectId, type="json_post"):
+        webhookName = webhookObj["name"]
         logger.info(f"Handling Webhook Call {webhookName} {subjectId}")
         scanExec = None
         scanData = None
         appData = None
         reportUrl = None
-        
-        #check config for webhook name
-        webhookObj = None
-        for wh in self.config["webhooks"]:
-            if(wh["name"] == webhookName):
-                webhookObj = wh
-                break
-        if(not webhookObj):
-            logger.error(f"Webhook [{webhookName}] not found")
-            return False
         
         logger.info("Collecting Data from ASoC")
         

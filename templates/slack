@@ -1,0 +1,60 @@
+{
+	"blocks": [
+		{
+			"type": "header",
+			"text": {
+				"type": "plain_text",
+				"text": "Scan Complete on {app}",
+				"emoji": true
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": ":bell: *Total Issues: {NIssuesFound}*"
+			}
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": ":red_circle: *High Issues:* {NHighIssues} \t\t :large_orange_circle: *Medium Issues:* {NMediumIssues} \t\t :large_blue_circle: *Low Issues:* {NLowIssues}"
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "*Summary:*\r\nScan Name: {scanName}\r\nScan Finished: {scan_finished_time}\r\nScan Duration: {duration_str}\r\nCreated By:{createdBy}"
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "See the scan report for details."
+			},
+			"accessory": {
+				"type": "button",
+				"text": {
+					"type": "plain_text",
+					"text": "View Report",
+					"emoji": true
+				},
+				"value": "view_rpt_button",
+				"url": "{report_url}",
+				"action_id": "button-action"
+			}
+		}
+	]
+}

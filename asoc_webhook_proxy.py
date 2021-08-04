@@ -91,11 +91,16 @@ def init():
     
     logger.info("Checking ASoC for Webhooks")
     reportBaseUrl = config["hostname"]+":"+str(config["port"])
+    
+    for wh in config["webhooks"]["custom"]:
+        wh_name = wh["name"]
+        logger.info("Third party webhook [{wh_name}] Found")
+        
     asocWebHooks = asoc.getWebhooks()
     if(asocWebHooks is not None):
         n = len(asocWebHooks)
         logger.info(f"{n} webhooks returned")
-        for wh in config["webhooks"]:
+        for wh in config["webhooks"]["asoc"]:
             wh_name = wh["name"]
             calcConfigWHUrl = f"{reportBaseUrl}/asoc/{wh_name}"
             found = False
@@ -116,7 +121,6 @@ def init():
     
     webhookHandler = WebhookHandler(asoc, config)
     logger.info("Created Webhook Handler Obj")
-    
     logger.info("Initialization OK")
     
 def getScanSummary(execId):
@@ -157,111 +161,19 @@ def saveReport(execId, reportConfig, fullPath):
         logger.error("Problem occurred downloading report")
         return False
     return True
-
-"""
-Function to translate the scan data to the format expected by
-the webhook
-"""
-def scanDataToWebhookData(template, data, reportUrl=None):
-    now = datetime.now()
-    time_stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
-    app = data["scan"]["AppName"]
-    scanFinishedRaw = data["scan_execution"]["ScanEndTime"]
-    scanFinishedDt = datetime.strptime(scanFinishedRaw,"%Y-%m-%dT%H:%M:%S.%fZ")
-    scanFinished = scanFinishedDt.strftime("%Y-%m-%d %H:%M:%S")
-    duration_secs = data["scan_execution"]["ExecutionDurationSec"]
-    duration_str = time.strftime('%Hh %Mm %Ss', time.gmtime(duration_secs))
-    createdBy = data["scan_execution"]["CreatedBy"]["FirstName"]+" "
-    createdBy += data["scan_execution"]["CreatedBy"]["LastName"]+" <"
-    createdBy += data["scan_execution"]["CreatedBy"]["Email"]+">"
-    scanName = data["scan"]["Name"]
-    report_url = reportUrl
-    NIssuesFound = data["scan_execution"]["NIssuesFound"]
-    NHighIssues = data["scan_execution"]["NHighIssues"]
-    NMediumIssues = data["scan_execution"]["NMediumIssues"]
-    NLowIssues = data["scan_execution"]["NLowIssues"]
-    
-    templateStr = ""
-    try:
-        with open(template, "r") as f:
-            templateStr = f.read()
-    except Exception as e:
-        logger.error(f"Error reading template file {template}")
-        logger.error(e)
-        return None
-        
-    templateStr = templateStr.replace("{app}", app)
-    templateStr = templateStr.replace("{scan_finished_time}", scanFinished)
-    templateStr = templateStr.replace("{time_stamp}", time_stamp)
-    templateStr = templateStr.replace("{duration_str}", duration_str)
-    templateStr = templateStr.replace("{createdBy}", createdBy)
-    templateStr = templateStr.replace("{scanName}", scanName)
-    if(not reportUrl):
-        templateStr = templateStr.replace("{report_url}", "")
-    else:
-        templateStr = templateStr.replace("{report_url}", report_url)
-    templateStr = templateStr.replace("{NIssuesFound}", str(NIssuesFound))
-    templateStr = templateStr.replace("{NHighIssues}", str(NHighIssues))
-    templateStr = templateStr.replace("{NMediumIssues}", str(NMediumIssues))
-    templateStr = templateStr.replace("{NLowIssues}", str(NLowIssues))
-    
-    templateJson = None
-    try:
-        templateJson = json.loads(templateStr)
-    except Exception as e:
-        logger.error("Error parsing templateStr to Python Dict")
-        logger.error(e)
-        return None
-    return templateJson
-   
-
-def processWebhook(webhook, execId, baseUrl):
-    global scriptDir, config
-    
-    #Set the webhook fields
-    webhookUrl = webhook["url"]
-    webhookName = webhook["name"]
-    reportConfig = webhook["report_config"]
-    ext = reportConfig["Configuration"]["ReportFileType"].lower()
- 
-    #Build the real path to save the report file
-    reportPath = f"{scriptDir}/reports/{execId}.{ext}"
-    
-    #Start pulling the scan summary from ASoC
-    logger.info(f"Processing Webhook [{webhookName}] with scan execution [{execId}]")
-    scandata = getScanSummary(execId)
-    if(not scandata):
-        return
-    
-    logger.info(f"[{webhookName}] Retrieved Scan Data Successfully")
-    
-    #Download the Report
-    if(saveReport(execId, reportConfig, reportPath)):
-        reportUrl = f"{baseUrl}/reports/{execId}.{ext}"
-        logger.info(f"[{webhookName}] Calculated Report URL: {reportUrl}")
-    else:
-        reportUrl = None
-    
-    #Convert the scan data to the webhook template
-    data = scanDataToWebhookData(f"templates/{webhookName}", scandata, reportUrl)
-    
-    if(data):
-        logger.info(f"[{webhookName}] Translated Scan Data to Webhook Template")
-    else:
-        return
-        
-    #Make the webhook request
-    result = postWebhook(webhookUrl, data)
-    logger.info(f"[{webhookName}] Posted Data to Webhook, Response Code: {result}")
     
 """
 Define Flask App (Lazy Mode)
 """
 app = Flask(__name__)
 
-#Catch webhook requests from ASoC
-@app.route('/asoc/<webhook>/<execId>', methods=['GET'])
-def respond(webhook, execId):
+"""
+Catch webhook requests from ASoC
+If the webhook comes from ASoC, then retrieve
+Scan summary/App Data from ASoC API
+"""
+@app.route('/asoc/<webhook>/<id>', methods=['GET'])
+def respond_asoc(webhook, id):
     global safePattern, config, reportBaseUrl, webhookHandler
     
     logger.info(f"Incoming Webook [{webhook}]")
@@ -272,14 +184,14 @@ def respond(webhook, execId):
         logger.error("Invalid Chars in Webhook name. Valid = [a-Z0-9\-_]")
         return Response(status=400)
         
-    validated = re.sub(safePattern, '', execId)
-    if(validated != execId):
+    validated = re.sub(safePattern, '', id)
+    if(validated != id):
         logger.error("Invalid Chars in Scan Exec ID name. Valid = [a-Z0-9\-_]")
         return Response(status=400)
     
     #Map the incoming webhook to a WebhookObj in the config
     webhookObj = None
-    for wh in config["webhooks"]:
+    for wh in config["webhooks"]["asoc"]:
         if(wh["name"] == webhook):
             webhookObj = wh
             break
@@ -306,21 +218,63 @@ def respond(webhook, execId):
             logger.error(f"Template {webhook} does not exist")
             return Response(status=400)
             
-        
         logger.info(f"Verified the template exists for webhook [{webhook}]")
         logger.info(f"Sending [{webhook}] to handler")
-        Thread(target=webhookHandler.handle, args=(webhook, execId)).start()
-        return Response(status=202)
-    elif(webhookType == "custom"):
-        logger.info(f"Sending [{webhook}] to handler")
-        Thread(target=webhookHandler.handleCustom, args=(webhook, execId)).start()
+        Thread(target=webhookHandler.handle, args=(wh, id)).start()
         return Response(status=202)
     else:
-        logger.error("Invalid webhook type, expected json_post or custom")
+        logger.error("Invalid webhook type, Only json_post supported at this time.")
         logger.info(f"Responding with 400")
         return Response(status=400)
 
-#Serve reports from the report directory
+"""
+Catch webhook requests from third party tools
+Process any route that has
+/<source>
+Scan summary/App Data from ASoC API
+"""
+@app.route('/<source>', methods=['GET', 'POST'])
+def process_custom(source):
+    #Ignore if source is asoc
+    if(source == "asoc"):
+        Response(status=404)
+    
+    logger.info(f"Processing Custom Incoming Webhook  [{source}]")
+    
+    #Gather Data Submitted: Post Args, Query Args, Json Data
+    if(len(request.args) == 0):
+        queryArgs = None
+    else:
+        queryArgs = request.args
+        
+    if(len(request.form) == 0):
+        postArgs = None
+    else:
+        postArgs = request.form
+        
+    jsonData = request.json
+    
+    data = {
+        "query": queryArgs,
+        "post": postArgs,
+        "json": request.json
+    }
+    
+    #Map the incoming webhook to a WebhookObj in the config
+    webhookObj = None
+    for wh in config["webhooks"]["custom"]:
+        if(wh["name"] == source):
+            webhookObj = wh
+            break
+    
+    if(webhookObj is None):
+        logger.error(f"No custom handler for webhook [{source}]") 
+        return Response(status=400)
+        
+    Thread(target=webhookHandler.handleCustom, args=(webhookObj, data)).start()
+    return Response(status=202)
+
+#Serve static files from the report directory
 @app.route('/reports/<path:path>')
 def sendreport(path):
     return send_from_directory('reports', path)
