@@ -1,4 +1,5 @@
 
+
 ## AppScan on Cloud Webhook Proxy
 
 This tool creates an endpoint for capturing AppScan on Cloud webhook requests, gathers additional data about the scan, creates a custom HTTP request based on a provided template, then reroutes it to the desired endpoints. By default, AppScan on Cloud only provides a scan execution ID to any listening endpoints. This scan execution ID needs to have further context to be useful, for alerting or reporting purposes. As an example, I have provided a template to create an alert message on a desired Discord channel. 
@@ -89,6 +90,22 @@ Click "Copy Webhook URL" to copy the URL to your clipboard and paste into your c
 Now run ASoC Webhook Proxy and verify that a webhook is either already found or created for the discord webhook. Run a scan and watch the output from the ASoC Webhook Proxy. You should see an alert from Discord.
 
 ![Discord Example 2](http://chillaspect.com/images/asoc_whp1.png)
+
+## Third-Party Incoming Webhook Handlers
+The ASoC Webhook Proxy can listen for and process incoming third-party webhooks. To implement this, add a webhook item in the config.json under webhooks > custom:
+
+```
+"custom": [
+	{
+		"name": "thirdparty",
+		"handler": "helloworld"
+	}
+]
+```
+In this case you can register an incoming webhook with your third-party tool at your server e.g. http://mysite.com/thirdparty. Then create a Python script that implements your custom handler logic in the handlers directory. ASoC webhook proxy will catch the webhook call, capture all the included parameters/json and forward them to a function in your script "handle". In the above configuration, the `handle()` function in `handlers/helloworld.py` script will be called.  The helloworld example just prints a hello world message.
+
+![Hello World Example](http://chillaspect.com/images/awp3.png)
+Check out the helloworld.py example.
 
 ## Other Info
 
