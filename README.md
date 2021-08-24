@@ -33,7 +33,7 @@ git clone https://github.com/cwtravis/asoc-wehbook-proxy.git
 cd asoc-wehbook-proxy
 set FLASK_APP=asoc_webhook_proxy
 set FLASK_ENV=development
-py -m flask run --host=0.0.0.0 --port=5000
+py -m flask run --host=0.0.0.0 --port=5000 --no-reload
 ```
 
 ### Linux
@@ -42,7 +42,7 @@ git clone https://github.com/cwtravis/asoc-wehbook-proxy.git
 cd asoc-wehbook-proxy
 export FLASK_APP=asoc_webhook_proxy
 export FLASK_ENV=development
-flask run --host=0.0.0.0 --port=5000
+flask run --host=0.0.0.0 --port=5000 --no-reload
 ```
 Leave off the host to run on localhost 127.0.0.1 or leave off the port to run on the default port 5000. ASoC Webhook Proxy will read the config file and listen on the indicated endpoints for webhook requests from ASoC. 
 
