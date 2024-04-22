@@ -4,6 +4,10 @@
 
 This tool creates an endpoint for capturing AppScan on Cloud webhook requests, gathers additional data about the scan, creates a custom HTTP request based on a provided template, then reroutes it to the desired endpoints. By default, AppScan on Cloud only provides a scan execution ID to any listening endpoints. This scan execution ID needs to have further context to be useful, for alerting or reporting purposes. As an example, I have provided a template to create an alert message on a desired Discord channel. 
 
+## Recent Change 2024-04-22
+
+This tool now uses the v4 AppScan on Cloud API
+
 ## Requirements
 
 This tool was written for Python3 and was tested against 3.9.0. 
