@@ -43,18 +43,21 @@ class ASoC:
         resp = requests.get("https://cloud.appscan.com/api/v4/Account/TenantInfo", headers=headers)
         return resp.status_code == 200
     
-    def getApplication(self, id):
+    def getApplication(self, app_id):
         headers = {
             "Accept": "application/json",
             "Authorization": "Bearer "+self.token
         }
         
-        resp = requests.get("https://cloud.appscan.com/api/v4/Apps/"+id, headers=headers)
+        params = {
+            "$filter": f"Id eq {app_id}"
+        }
+        resp = requests.get("https://cloud.appscan.com/api/v4/Apps", headers=headers, params=params)
         
         if(resp.status_code == 200):
             return resp.json()['Items']
         else:
-            logger.debug(f"ASoC App Summary Error Response")
+            logger.debug("ASoC App Summary Error Response")
             self.logResponse(resp)
             return None
             

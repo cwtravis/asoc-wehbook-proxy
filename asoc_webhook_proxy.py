@@ -22,7 +22,7 @@ if(not os.path.isdir("log")):
         print("Cannot make log directory! Exiting")
         sys.exit(1)
 
-level = logging.INFO
+level = logging.DEBUG
 
 #Setup Logging first
 logger = logging.getLogger('asoc_webhook_proxy')

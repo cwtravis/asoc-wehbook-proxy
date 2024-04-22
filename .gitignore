@@ -4,3 +4,4 @@ log/*
 **/test
 __pycache__
 /test.py
+venv

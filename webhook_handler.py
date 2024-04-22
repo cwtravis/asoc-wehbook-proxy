@@ -58,7 +58,8 @@ class WebhookHandler:
         time_stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
         app = data["scan"]["AppName"]
         scanFinishedRaw = data["scan_execution"]["ScanEndTime"]
-        scanFinishedDt = datetime.strptime(scanFinishedRaw,"%Y-%m-%dT%H:%M:%S.%fZ")
+        scanFinishedRaw = scanFinishedRaw[:19]+"Z"
+        scanFinishedDt = datetime.strptime(scanFinishedRaw,"%Y-%m-%dT%H:%M:%SZ")
         scanFinished = scanFinishedDt.strftime("%Y-%m-%d %H:%M:%S")
         duration_secs = data["scan_execution"]["ExecutionDurationSec"]
         duration_str = time.strftime('%Hh %Mm %Ss', time.gmtime(duration_secs))
@@ -174,9 +175,10 @@ class WebhookHandler:
             ext = webhookObj["report_config"]["Configuration"]["ReportFileType"].lower()
             reportUrl = self.config["hostname"]+":"+str(self.config["port"])+"/reports/"+subjectId+"."+ext
             path = "reports/"+subjectId+"."+ext
+            logger.debug(path)
             if(not self.saveReport(reportTargetId, webhookObj["report_config"], path, trigger)):
                 reportUrl = None
-        
+            logger.debug("Report Saved")
         data = {
             "scan_execution": scanExec,
             "scan": scanData,
