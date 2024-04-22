@@ -1,7 +1,7 @@
 import requests
 import time
 import logging
-logger = logging.getLogger('asco_webhook_proxy')
+logger = logging.getLogger('asoc_webhook_proxy')
 
 class ASoC:
     def __init__(self, apikey):
@@ -124,7 +124,7 @@ class ASoC:
         while status not in ["Abort","Ready"] or elapsed >= timeoutSecs:
             status = self.reportStatus(reportId)
             elapsed += intervalSecs
-            time.sleep(intervalSecs)   
+            time.sleep(intervalSecs)
         return status == "Ready"
         
     def downloadReport(self, reportId, fullPath):

@@ -25,9 +25,9 @@ if(not os.path.isdir("log")):
 level = logging.INFO
 
 #Setup Logging first
-logger = logging.getLogger('asco_webhook_proxy')
+logger = logging.getLogger('asoc_webhook_proxy')
 logger.setLevel(level)
-fh = logging.FileHandler('log/asco_webhook_proxy.log')
+fh = logging.FileHandler('log/asoc_webhook_proxy.log')
 fh.setLevel(level)
 ch = logging.StreamHandler()
 ch.setLevel(level)
@@ -149,7 +149,7 @@ def saveReport(execId, reportConfig, fullPath):
         if(not asoc.login()):
             logger.error("Cannot login, check network or credentials")
             return False
-    reportId = asoc.startScanReport(execId, reportConfig, True)
+    reportId = asoc.startReport(execId, reportConfig, True)
     if(not reportId):
         logger.error("Error starting report for scan execution {execId}")
         return False

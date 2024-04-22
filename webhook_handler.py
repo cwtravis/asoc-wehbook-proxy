@@ -5,7 +5,7 @@ import logging
 import json
 import importlib
 
-logger = logging.getLogger('asco_webhook_proxy')
+logger = logging.getLogger('asoc_webhook_proxy')
 
 class WebhookHandler:
     asoc = None
@@ -15,17 +15,17 @@ class WebhookHandler:
         self.config = config
         self.asoc = asoc
     
-    def collectSubjectData(subjectId):
+    def collectSubjectData(self, subjectId):
         if(not self.asoc.checkAuth()):
             if(not self.asoc.login()):
                 logger.error("Cannot login, check network or credentials")
                 return None
-        scanExec = asoc.scanSummary(execId, True)
+        scanExec = self.asoc.scanSummary(subjectId, True)
         if(not scanExec):
-            logger.error(f"Error getting scan execution summary: {execId}")
+            logger.error(f"Error getting scan execution summary: {subjectId}")
             return None
         scanId = scanExec["ScanId"]
-        scan = asoc.scanSummary(scanId)
+        scan = self.asoc.scanSummary(scanId)
         if(not scan):
             logger.error(f"Error getting scan summary: {scanId}")
             return None
