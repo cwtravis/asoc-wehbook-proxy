@@ -117,7 +117,7 @@ def init():
                     logger.info(f"Successfully created ASoC Webhook [{wh_name}]")
                 else:
                     logger.warning("Could not create ASoC Webhook... bad permissions?")
-    safePattern = re.compile('[^a-zA-Z0-9\-_]')
+    safePattern = re.compile(r'[^a-zA-Z0-9\-_]')
     
     webhookHandler = WebhookHandler(asoc, config)
     logger.info("Created Webhook Handler Obj")
@@ -181,12 +181,12 @@ def respond_asoc(webhook, id):
     #Validate the request parameters
     validated = re.sub(safePattern, '', webhook)
     if(validated != webhook):
-        logger.error("Invalid Chars in Webhook name. Valid = [a-Z0-9\-_]")
+        logger.error("Invalid Chars in Webhook name. Alpha numeric, hyphen, and underscore only")
         return Response(status=400)
         
     validated = re.sub(safePattern, '', id)
     if(validated != id):
-        logger.error("Invalid Chars in Scan Exec ID name. Valid = [a-Z0-9\-_]")
+        logger.error("Invalid Chars in Scan Exec ID name. Alpha numeric, hyphen, and underscore only")
         return Response(status=400)
     
     #Map the incoming webhook to a WebhookObj in the config
