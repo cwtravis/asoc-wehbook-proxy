@@ -113,15 +113,20 @@ class ASoC:
             "Accept": "application/json",
             "Authorization": "Bearer "+self.token
         }
-        resp = requests.get("https://cloud.appscan.com/api/v4/Reports?%24filter%20eq%20"+reportId, headers=headers)
-        if(resp.status_code == 200):
-            return resp.json()['Items'][0]["Status"]
+        params = {
+            "$filter": f"Id eq {reportId}"
+        }
+        resp = requests.get("https://cloud.appscan.com/api/v4/Reports", headers=headers, params=params)
+        if resp.status_code == 200:
+            status_str = resp.json()['Items'][0]['Status']
+            logger.debug(f"Report Status [{status_str}]")
+            return status_str
         else:
             logger.debug(f"ASoC Report Status")
             self.logResponse(resp)
             return "Abort"
             
-    def waitForReport(self, reportId, intervalSecs=30, timeoutSecs=60):
+    def waitForReport(self, reportId, intervalSecs=5, timeoutSecs=120):
         status = None
         elapsed = 0
         while status not in ["Abort","Ready"] or elapsed >= timeoutSecs:
