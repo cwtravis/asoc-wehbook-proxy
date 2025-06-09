@@ -245,6 +245,10 @@ def process_custom(source):
     #Ignore if source is asoc
     if(source == "asoc"):
         Response(status=404)
+
+    #Ignore if source is favicon.ico
+    if(source == "favicon.ico"):
+        Response(status=404)
     
     logger.info(f"Processing Custom Incoming Webhook  [{source}]")
     
