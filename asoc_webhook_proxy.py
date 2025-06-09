@@ -168,6 +168,13 @@ Define Flask App (Lazy Mode)
 app = Flask(__name__)
 
 """
+Default Index Response
+"""
+@app.route('/', methods=['GET'])
+def index():
+    return "ASOC Webhook Proxy"
+
+"""
 Catch webhook requests from ASoC
 If the webhook comes from ASoC, then retrieve
 Scan summary/App Data from ASoC API
