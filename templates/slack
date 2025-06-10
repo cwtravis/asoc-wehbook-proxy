@@ -32,7 +32,7 @@
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "*Summary:*\r\nScan Name: {scanName}\r\nScan Finished: {scan_finished_time}\r\nScan Duration: {duration_str}\r\nCreated By:{createdBy}\r\n[Download Report]({report_url})"
+				"text": "*Summary:*\r\nScan Name: {scanName}\r\nScan Finished: {scan_finished_time}\r\nScan Duration: {duration_str}\r\nCreated By:{createdBy}\r\n<{report_url}|Download Report>"
 			}
 		},
 		{
