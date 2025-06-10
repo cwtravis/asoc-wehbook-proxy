@@ -189,7 +189,7 @@ class WebhookHandler:
             "app": appData,
             "report_url": reportUrl
         }
-        print(data)
+
         if(type=="json_post"):
             logger.info("Processing template")
             templateJson = self.applyTemplate("templates/"+webhookObj["template"], data)
