@@ -42,17 +42,17 @@
 			"type": "section",
 			"text": {
 				"type": "mrkdwn",
-				"text": "See the scan report for details."
+				"text": "View scan summary in AppScan on Cloud"
 			},
 			"accessory": {
 				"type": "button",
 				"text": {
 					"type": "plain_text",
-					"text": "View Report",
+					"text": "View Scan",
 					"emoji": true
 				},
 				"value": "view_rpt_button",
-				"url": "{report_url}",
+				"url": "{scan_url}",
 				"action_id": "button-action"
 			}
 		}
