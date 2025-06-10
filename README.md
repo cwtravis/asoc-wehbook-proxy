@@ -74,6 +74,7 @@ Check the discord example template to see the fields in action.
 | {NMediumIssues} | Number of medium severity issues found during the scan |
 | {NLowIssues} | Number of low severity issues found during the scan |
 | {scanName} | Name of the scan in ASoC |
+| {scan_url} | http link directly to scan summary page in ASoC |
 | {duration_str} | Duration of the scan in 0h 0m 0s |
 | {createdBy} | Name and email of user that created the scan |
 | {time_stamp} | Timestamp of when the webhook was received |
