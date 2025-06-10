@@ -57,6 +57,8 @@ class WebhookHandler:
         now = datetime.now()
         time_stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
         app = data["scan"]["AppName"]
+        app_id = data["scan"]["AppId"]
+        scan_id = data["scan"]["Id"]
         scanFinishedRaw = data["scan_execution"]["ScanEndTime"]
         scanFinishedRaw = scanFinishedRaw[:19]+"Z"
         scanFinishedDt = datetime.strptime(scanFinishedRaw,"%Y-%m-%dT%H:%M:%SZ")
@@ -92,6 +94,8 @@ class WebhookHandler:
         templateStr = templateStr.replace("{duration_str}", duration_str)
         templateStr = templateStr.replace("{createdBy}", createdBy)
         templateStr = templateStr.replace("{scanName}", scanName)
+        scan_url = f"https://cloud.appscan.com/main/myapps/{app_id}/scans/{scan_id}/scanOverview"
+        templateStr = templateStr.replace("{scan_url}", scan_url)
         
         if(report_url is None):
             templateStr = templateStr.replace("{report_url}", "")
@@ -185,7 +189,7 @@ class WebhookHandler:
             "app": appData,
             "report_url": reportUrl
         }
-        
+        print(data)
         if(type=="json_post"):
             logger.info("Processing template")
             templateJson = self.applyTemplate("templates/"+webhookObj["template"], data)
